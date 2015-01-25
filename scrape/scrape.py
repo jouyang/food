@@ -7,9 +7,8 @@ def ingredients(url):
 	response = requests.get(url)
 
 	soup = BeautifulSoup(response.text)
-
 	ingredients_full = soup.findAll('p', attrs =  {'class':'fl-ing'})
-	ingredients = []
+	ingredients = []	
 	for ingred in ingredients_full:
 		pieces = ingred.findAll('span')
 		ingredients.append((pieces[0].text,pieces[1].text))

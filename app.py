@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
-import scrape
+from scrape import ingredients
+import sys, json
 
 app = Flask(__name__)
 
@@ -15,8 +16,15 @@ def recipes():
 
 @app.route('/api/ingredients', methods=['POST'])
 def scrape():
-	result = scrape.ingredients(request.form['url'])
-	return jsonify(result)
+	try:
+		url = request.form['url']
+		result = ingredients(url)
+		data = {'ingredients':result}
+		return json.dumps(data)
+	except:
+		e = sys.exc_info()
+		return e
 
 if __name__ == '__main__':
-        app.run()
+	app.debug = True
+	app.run()
