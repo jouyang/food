@@ -1,6 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import requests, ast
+import requests, ast, re
 
 class scraper:
 
@@ -14,6 +14,10 @@ class scraper:
 
 	# url = "http://allrecipes.com/Recipe/Scrumptious-Salmon-Cakes/Detail.aspx?soid=recs_recipe_1"
 	# returned in [(quantity,ingredient),(quantity2,ingredient2),...]
+	def filterIngredients(self,ingredientList):
+		return [(quantity,re.sub('\(.*\)|finely|thinly|chopped|sliced|coarsely|shredded|fresh|\(|\)|,','',ingredient).strip()) 
+				for (quantity,ingredient) in ingredientList]			
+
 	def getRecipeIngredients(self, url):
 		response = requests.get(url)
 
@@ -24,7 +28,7 @@ class scraper:
 			pieces = ingred.findAll('span')
 			ingredients.append((pieces[0].text,pieces[1].text))
 
-		return ingredients
+		return self.filterIngredients(ingredients)
 
 	'''
 	Given ingredient name, find the info necessary, first search with webdriver.phantomJS, parse with bs

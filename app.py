@@ -27,8 +27,8 @@ def scrape():
 		return jsonify(data), 200
 	except:
 		e = sys.exc_info()
-		# abort(400)
-		return e
+		print e
+		abort(400)
 
 @app.errorhandler(404)
 def not_found(error):
