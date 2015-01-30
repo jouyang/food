@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, make_response, abort
-from scrape import ingredients
+from scrape import scraper
 import sys, json
 
 app = Flask(__name__)
@@ -16,12 +16,14 @@ def recipes():
 
 @app.route('/api/ingredients', methods=['POST'])
 def scrape():
+	s = scraper()
 	if not request.json or not 'url' in request.json:
 		abort(400)
 	try:
 		url = request.json['url']
-		result = ingredients(url)
+		result = s.getRecipeIngredients(url)
 		data = {'ingredients':result}
+		s.closeDriver()
 		return jsonify(data), 200
 	except:
 		e = sys.exc_info()
