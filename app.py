@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response, abort
 from scrape import ingredients
 import sys, json
 
@@ -16,14 +16,21 @@ def recipes():
 
 @app.route('/api/ingredients', methods=['POST'])
 def scrape():
+	if not request.json or not 'url' in request.json:
+		abort(400)
 	try:
-		url = request.form['url']
+		url = request.json['url']
 		result = ingredients(url)
 		data = {'ingredients':result}
-		return json.dumps(data)
+		return jsonify(data), 200
 	except:
 		e = sys.exc_info()
+		# abort(400)
 		return e
+
+@app.errorhandler(404)
+def not_found(error):
+	return make_response(jsonify({'error':'Not found'}), 404)
 
 if __name__ == '__main__':
 	app.debug = True
