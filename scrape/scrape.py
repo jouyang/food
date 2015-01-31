@@ -1,6 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import requests, ast, re
+import requests, ast, re, unittest
 
 class scraper:
 
@@ -24,9 +24,25 @@ class scraper:
 		soup = BeautifulSoup(response.text)
 		ingredients_full = soup.findAll('p', attrs =  {'class':'fl-ing'})
 		ingredients = []	
-		for ingred in ingredients_full:
-			pieces = ingred.findAll('span')
-			ingredients.append((pieces[0].text,pieces[1].text))
+		try:
+			for ingred in ingredients_full:
+				quant = ingred.find('span',attrs={'class':'ingredient-amount'})
+				name = ingred.find('span',attrs={'class':'ingredient-name'})
+				if quant is None:
+					quant = 'N\A'
+				else:
+					quant = quant.text
+				if name is None:
+					name = 'N\A'
+				else:
+					name = name.text
+				ingredients.append((quant,name))
+		except IndexError as e:
+			print 'Failed to parse ingredients on allrecipes\n'
+			print 'The received webpage was:\n'
+			print ingredients_full
+			raise e
+
 
 		return self.filterIngredients(ingredients)
 
@@ -62,12 +78,18 @@ class scraper:
 	#Returns a dictionary of product parameters for post request
 	def getFoodParams(self,itemData):
 		params = itemData.findAll('input',attrs={'data-component':'productData'})
-		paramsDict = {'atcItemId':params[0]['value'],
-					  'productId':params[1]['value'],
-					  'categoryId':params[2]['value'],
-					  'skuCode':params[3]['value'],
-					  'pageType':params[4]['value']}
-		return paramsDict
+		try:
+			paramsDict = {'atcItemId':params[0]['value'],
+						  'productId':params[1]['value'],
+						  'categoryId':params[2]['value'],
+						  'skuCode':params[3]['value'],
+						  'pageType':params[4]['value']}
+			return paramsDict
+		except IndexError as e:
+			print 'Failed to get item params'
+			print 'The receieved params was\n'
+			print params
+			raise e
 
 	#Returns the dictionary with all the essential params
 	def getFoodJson(self,ingredient_name):
@@ -90,6 +112,24 @@ class scraper:
 			print 'Obtained Json successfully'
 			print json
 		return ingredientsJson
+
+class TestScraper(unittest.TestCase):
+
+	def setUp(self):
+		self.s = scraper()
+
+	def tearDown(self):
+		self.s.closeDriver()
+
+	def testGetRecipeIngredientsJson(self):
+		print 'Beginning Test\n'
+		print "Testing getRecipeIngredientsJson with test url: \nhttp://allrecipes.com/Recipe/Pesto-Pasta-with-Chicken/Detail.aspx?evt19=1"
+		testURL = 'http://allrecipes.com/Recipe/Pesto-Pasta-with-Chicken/Detail.aspx?evt19=1'
+		self.s.getRecipeIngredientsJson(testURL)
+
+if __name__ == "__main__":
+	unittest.main()
+	
 
 
 
