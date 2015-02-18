@@ -111,6 +111,7 @@ class scraper:
 			json = self.getFoodJson(ingredient)
 			print 'Obtained Json successfully'
 			print json
+			ingredientsJson.append(json)
 		return ingredientsJson
 
 class TestScraper(unittest.TestCase):
@@ -123,14 +124,13 @@ class TestScraper(unittest.TestCase):
 
 	def testGetRecipeIngredientsJson(self):
 		print 'Beginning Test\n'
-		print "Testing getRecipeIngredientsJson with test url: \nhttp://allrecipes.com/Recipe/Pesto-Pasta-with-Chicken/Detail.aspx?evt19=1"
-		testURL = 'http://allrecipes.com/Recipe/Pesto-Pasta-with-Chicken/Detail.aspx?evt19=1'
-		self.s.getRecipeIngredientsJson(testURL)
+		print "Testing getRecipeIngredientsJson with test url: \nhttp://allrecipes.com/Recipe/Greek-Scrambled-Eggs/"
+		testURL = 'http://allrecipes.com/Recipe/Greek-Scrambled-Eggs/'
+		result = self.s.getRecipeIngredientsJson(testURL)
+		print result
 
 if __name__ == "__main__":
 	unittest.main()
-	
-
 
 
 

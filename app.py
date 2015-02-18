@@ -21,7 +21,7 @@ def scrape():
 		abort(400)
 	try:
 		url = request.json['url']
-		result = s.getRecipeIngredients(url)
+		result = s.getRecipeIngredientsJson(url)
 		data = {'ingredients':result}
 		s.closeDriver()
 		return jsonify(data), 200
